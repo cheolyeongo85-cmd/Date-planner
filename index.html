@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>우리의 데이트 플래너</title>
+<style>
+:root{--bg:#fff7f8;--card:#fff;--tx:#2b2326;--sub:#8a7a7f;--pk:#ff5d8f;--pk2:#ffe1ea;--bd:#f0d9df;--ok:#2fa37a;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1c1618;--card:#2a2124;--tx:#f5eaee;--sub:#b3a0a6;--pk:#ff7aa3;--pk2:#4a2833;--bd:#3d2f34;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#1c1618;--card:#2a2124;--tx:#f5eaee;--sub:#b3a0a6;--pk:#ff7aa3;--pk2:#4a2833;--bd:#3d2f34;color-scheme:dark}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:-apple-system,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif;line-height:1.5}
+.wrap{max-width:640px;margin:0 auto;padding:18px 16px 80px}
+h1{font-size:22px;margin:4px 0 2px}
+.sub{color:var(--sub);font-size:13px;margin:0 0 14px}
+.tabs{display:flex;gap:6px;margin:12px 0}
+.tab{flex:1;padding:10px 4px;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:12px;font-size:14px;cursor:pointer}
+.tab.on{background:var(--pk);color:#fff;border-color:var(--pk);font-weight:600}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:14px;margin-bottom:10px;cursor:pointer;overflow:hidden}
+.card h3{margin:0 0 4px;font-size:17px}
+.cov{width:calc(100% + 28px);margin:-14px -14px 10px;height:130px;object-fit:cover;display:block}
+.meta{font-size:13px;color:var(--sub)}
+.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.tag{font-size:12px;background:var(--pk2);color:var(--pk);padding:2px 9px;border-radius:99px}
+.btn{border:0;background:var(--pk);color:#fff;padding:12px 16px;border-radius:12px;font-size:15px;cursor:pointer;font-weight:600;text-decoration:none;display:inline-block}
+.btn.ghost{background:transparent;color:var(--sub);border:1px solid var(--bd)}
+.btn.ok{background:var(--ok)}
+.fab{width:100%}
+.empty{text-align:center;color:var(--sub);padding:40px 10px}
+.modal{position:fixed;inset:0;background:var(--bg);overflow-y:auto;z-index:10;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+label.l{display:block;font-weight:600;font-size:14px;margin:16px 0 6px}
+input[type=text],input[type=date],textarea{width:100%;padding:11px 12px;border:1px solid var(--bd);border-radius:12px;background:var(--card);color:var(--tx);font:inherit;font-size:15px}
+textarea{min-height:90px;resize:vertical}
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{padding:7px 13px;border-radius:99px;border:1px solid var(--bd);background:var(--card);color:var(--tx);font-size:14px;cursor:pointer}
+.chip.on{background:var(--pk);color:#fff;border-color:var(--pk)}
+.add{display:flex;gap:6px;margin-top:8px}
+.add input{flex:1}.add button{padding:0 14px}
+.hearts button{background:none;border:0;font-size:28px;cursor:pointer;padding:0 2px;filter:grayscale(1);opacity:.4}
+.hearts button.on{filter:none;opacity:1}
+.row{display:flex;gap:8px;margin-top:22px}.row .btn{flex:1;text-align:center}
+.maps{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.maps a{font-size:13px;padding:7px 12px;border-radius:99px;border:1px solid var(--bd);color:var(--pk);text-decoration:none;background:var(--card)}
+.ph{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ph img{width:100%;height:140px;object-fit:cover;border-radius:12px;cursor:pointer}
+.warn{background:var(--pk2);color:var(--pk);padding:8px 12px;border-radius:10px;font-size:13px;margin-bottom:10px}
+.opt{position:relative;display:block;width:100%;text-align:left;margin-top:8px;padding:11px 12px;border:1px solid var(--bd);border-radius:12px;background:var(--card);color:var(--tx);font:inherit;font-size:15px;cursor:pointer;overflow:hidden}
+.opt .bar{position:absolute;left:0;top:0;bottom:0;background:var(--pk2);z-index:0}
+.opt span{position:relative;z-index:1}
+.opt.me{border-color:var(--pk);font-weight:600}
+.opt .n{float:right}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><h1>💑 우리의 데이트 플래너</h1><button class="btn ghost" id="who" style="padding:6px 10px;font-size:13px"></button></div>
+  <p class="sub">둘이 함께 고치고, 함께 기록해요</p>
+  <div id="warn"></div>
+  <div class="tabs">
+    <button class="tab on" id="t-plan">📝 계획</button>
+    <button class="tab" id="t-done">📖 기록</button>
+    <button class="tab" id="t-vote">🗳️ 투표</button>
+  </div>
+  <div id="pollForm" hidden>
+    <label class="l" style="margin-top:0">새 투표 만들기</label>
+    <input type="text" id="pq" placeholder="질문 (예: 이번 주말 어디 갈까?)">
+    <textarea id="po" style="margin-top:6px;min-height:80px" placeholder="선택지를 한 줄에 하나씩&#10;예) 바다&#10;산&#10;카페 투어"></textarea>
+    <button class="btn fab" id="pBtn" style="margin:8px 0 18px">투표 올리기</button>
+  </div>
+  <div id="list"></div>
+  <div id="newWrap"><button class="btn fab" id="newBtn">＋ 새 데이트 계획하기</button></div>
+</div>
+<div class="modal" id="modal" hidden><div class="wrap" id="ed"></div></div>
+
+<script>
+/* ===== GitHub Pages에서 둘이 실시간 공유하려면 Firebase 설정을 여기에 붙여넣으세요 =====
+   예: const FIREBASE_CONFIG={apiKey:"...",authDomain:"...",projectId:"...",appId:"..."};
+   비워두면(null) 이 기기 브라우저에만 저장돼요. */
+const FIREBASE_CONFIG=null;
+
+const OPTS={
+  concept:["💕 로맨틱","🌿 힐링","🍜 먹방","🎢 액티비티","☕ 감성카페","🏞️ 자연","🏙️ 도시탐방","🚗 당일치기","🧳 1박 2일","✈️ 해외여행"],
+  food:["🍚 한식","🍣 일식","🥟 중식","🍝 양식","🍰 카페·디저트","🥩 고기·구이","🦞 해산물","🍢 분식","🥐 브런치","🍻 술집"],
+  act:["🚶 산책","📸 명소관광","⛰️ 등산","🌊 바다","🪂 액티비티","🧳 여행","🎬 영화","🖼️ 전시","🛍️ 쇼핑","⛺ 캠핑"]
+};
+const LBL={concept:"💞 여행 컨셉",food:"🍽️ 먹고 싶은 음식",act:"🎯 하고 싶은 활동"};
+let C={},plans=[],photos=[],polls=[],tab="plan",openId=null,timers={};
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const get=id=>plans.find(p=>p.id===id);
+const me=()=>{let n=localStorage.getItem("me");if(!n){n=(prompt("이름(닉네임)을 입력해 주세요")||"").trim();if(n)localStorage.setItem("me",n)}paintWho();return n};
+const paintWho=()=>{$("#who").textContent="👤 "+(localStorage.getItem("me")||"이름 설정")};
+$("#who").onclick=()=>{const n=(prompt("이름(닉네임)",localStorage.getItem("me")||"")||"").trim();if(n){localStorage.setItem("me",n);paintWho()}};
+
+/* ---- 저장소: claude.ai → Firebase → 이 기기(localStorage) 순으로 자동 선택 ---- */
+function localShim(name){
+  const K="dp_"+name,ls=[];
+  const rd=()=>{try{return JSON.parse(localStorage.getItem(K)||"{}")}catch(e){return{}}};
+  const fire=()=>{const s={docs:Object.entries(rd()).map(([id,v])=>({id,data:()=>v}))};ls.forEach(f=>f(s))};
+  const wr=o=>{try{localStorage.setItem(K,JSON.stringify(o))}catch(e){alert("저장 공간이 부족해요")}fire()};
+  return{onSnapshot(f){ls.push(f);setTimeout(fire);return()=>{}},
+    doc:id=>({set:async d=>{const o=rd();o[id]=d;wr(o)},update:async d=>{const o=rd();o[id]={...o[id],...d};wr(o)},delete:async()=>{const o=rd();delete o[id];wr(o)}})};
+}
+const loadJs=u=>new Promise((r,j)=>{const s=document.createElement("script");s.src=u;s.onload=r;s.onerror=j;document.head.appendChild(s)});
+async function initDb(){
+  if(typeof claude!=="undefined"&&claude.use){try{const db=await claude.use("db");if(db)return{c:n=>db.collection(n),mode:"claude"}}catch(e){}}
+  if(FIREBASE_CONFIG){
+    try{
+      const v="10.12.2",b="https://www.gstatic.com/firebasejs/"+v+"/";
+      await loadJs(b+"firebase-app-compat.js");await loadJs(b+"firebase-firestore-compat.js");
+      firebase.initializeApp(FIREBASE_CONFIG);const fs=firebase.firestore();
+      return{c:n=>fs.collection(n),mode:"firebase"};
+    }catch(e){$("#warn").innerHTML='<div class="warn">Firebase 연결 실패 → 이 기기에만 저장해요.</div>'}
+  }
+  return{c:localShim,mode:"local"};
+}
+
+async function save(id,patch){
+  patch.updatedAt=Date.now();
+  const p=get(id);if(p)Object.assign(p,patch);
+  try{await C.dates.doc(id).update(patch)}catch(e){$("#warn").innerHTML='<div class="warn">저장에 실패했어요. 권한/설정을 확인해 주세요.</div>'}
+  renderList();
+}
+function saveLater(id,patch){
+  const p=get(id);if(p)Object.assign(p,patch);
+  clearTimeout(timers[id]);timers[id]=setTimeout(()=>save(id,patch),500);
+}
+async function newPlan(){
+  const id="p"+Date.now().toString(36);
+  const d={title:"새 데이트",date:"",place:"",mapUrl:"",concept:[],food:[],act:[],memo:"",status:"plan",review:"",rating:0,createdAt:Date.now(),updatedAt:Date.now()};
+  plans.push({id,...d});
+  try{await C.dates.doc(id).set(d)}catch(e){}
+  openEditor(id);
+}
+function renderList(){
+  if(tab==="vote"){$("#newWrap").hidden=true;$("#pollForm").hidden=false;return renderPolls()}
+  $("#pollForm").hidden=true;
+  const done=tab==="done";
+  const arr=plans.filter(p=>(p.status==="done")===done).sort((a,b)=>done?(b.date||"").localeCompare(a.date||""):(a.date||"9").localeCompare(b.date||"9"));
+  $("#newWrap").hidden=done;
+  $("#list").innerHTML=arr.length?arr.map(p=>{
+    const tags=[...(p.concept||[]),...(p.food||[]),...(p.act||[])].slice(0,8).map(t=>`<span class="tag">${esc(t)}</span>`).join("");
+    const heart=done&&p.rating?"<span> "+"❤️".repeat(p.rating)+"</span>":"";
+    const cv=photos.find(x=>x.planId===p.id);
+    return `<div class="card" data-id="${p.id}">${cv?`<img class="cov" src="${cv.data}" alt="">`:""}<h3>${esc(p.title||"제목 없음")}${heart}</h3><div class="meta">${p.date?esc(p.date):"날짜 미정"}${p.place?" · 📍"+esc(p.place):""}</div><div class="tags">${tags}</div>${done&&p.review?`<div class="meta" style="margin-top:8px">“${esc(p.review.slice(0,60))}${p.review.length>60?"…":""}”</div>`:""}</div>`;
+  }).join(""):`<div class="empty">${done?"아직 기록이 없어요.<br>데이트를 다녀온 뒤 ‘기록으로 보관’을 눌러보세요 📖":"아직 계획이 없어요.<br>아래 버튼으로 첫 데이트를 만들어보세요 💕"}</div>`;
+  document.querySelectorAll(".card").forEach(c=>c.onclick=()=>openEditor(c.dataset.id));
+}
+/* ---- 투표 ---- */
+function renderPolls(){
+  const arr=[...polls].sort((a,b)=>b.createdAt-a.createdAt);
+  const mine=localStorage.getItem("me");
+  $("#list").innerHTML=arr.length?arr.map(p=>{
+    const v=p.votes||{},tot=Object.keys(v).length;
+    return `<div class="card" style="cursor:default"><h3>${esc(p.question)}</h3><div class="meta">${tot}명 투표</div>`+
+    p.options.map((o,i)=>{
+      const who=Object.keys(v).filter(k=>v[k]===i),pc=tot?who.length/tot*100:0;
+      return `<button class="opt${mine&&v[mine]===i?" me":""}" data-p="${p.id}" data-i="${i}"><div class="bar" style="width:${pc}%"></div><span>${esc(o)}</span><span class="n">${who.length?esc(who.join(", "))+" · ":""}${who.length}</span></button>`}).join("")+
+    `<div style="text-align:right;margin-top:8px"><button class="btn ghost" data-dp="${p.id}" style="padding:4px 10px;font-size:12px">삭제</button></div></div>`}).join(""):`<div class="empty">아직 투표가 없어요.<br>고민되는 걸 올려서 같이 정해봐요 🗳️</div>`;
+  document.querySelectorAll(".opt").forEach(b=>b.onclick=()=>vote(b.dataset.p,+b.dataset.i));
+  document.querySelectorAll("[data-dp]").forEach(b=>b.onclick=()=>{if(confirm("투표를 삭제할까요?"))C.polls.doc(b.dataset.dp).delete()});
+}
+async function vote(id,i){
+  const n=me();if(!n)return;
+  const p=polls.find(x=>x.id===id),v={...(p.votes||{})};
+  if(v[n]===i)delete v[n];else v[n]=i;
+  p.votes=v;renderPolls();
+  try{await C.polls.doc(id).update({votes:v})}catch(e){}
+}
+$("#pBtn").onclick=async()=>{
+  const q=$("#pq").value.trim(),o=$("#po").value.split("\n").map(s=>s.trim()).filter(Boolean);
+  if(!q||o.length<2){alert("질문과 선택지 2개 이상을 입력해 주세요");return}
+  await C.polls.doc("v"+Date.now().toString(36)).set({question:q,options:o,votes:{},createdAt:Date.now()});
+  $("#pq").value="";$("#po").value="";
+};
+/* ---- 편집 화면 ---- */
+function chipsHtml(k,p){
+  const sel=p[k]||[],all=[...OPTS[k],...sel.filter(x=>!OPTS[k].includes(x))];
+  return all.map(o=>`<button class="chip${sel.includes(o)?" on":""}" data-v="${esc(o)}">${esc(o)}</button>`).join("");
+}
+function shrink(file){return new Promise((res,rej)=>{const img=new Image(),u=URL.createObjectURL(file);
+  img.onload=()=>{const r=Math.min(1,800/Math.max(img.width,img.height)),c=document.createElement("canvas");c.width=img.width*r;c.height=img.height*r;c.getContext("2d").drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(u);res(c.toDataURL("image/jpeg",.65))};
+  img.onerror=rej;img.src=u})}
+function openEditor(id){
+  openId=id;const p=get(id);if(!p)return;
+  $("#modal").hidden=false;
+  const done=p.status==="done";
+  $("#ed").innerHTML=`
+  <div class="top"><button class="btn ghost" id="back">← 목록</button><span class="meta" id="upd"></span></div>
+  <label class="l">제목</label><input type="text" id="f-title">
+  <label class="l">📅 날짜</label><input type="date" id="f-date">
+  <label class="l">📍 장소 / 지역</label><input type="text" id="f-place" placeholder="예: 제주도, 성수동">
+  <div class="maps" id="maps"></div>
+  <input type="text" id="f-map" style="margin-top:8px" placeholder="지도 링크 붙여넣기 (네이버/구글/카카오맵 공유 링크)">
+  ${["concept","food","act"].map(k=>`<label class="l">${LBL[k]}</label><div class="chips" id="c-${k}"></div>
+  <div class="add"><input type="text" id="a-${k}" placeholder="직접 추가"><button class="btn" data-add="${k}">추가</button></div>`).join("")}
+  <label class="l">🗒️ 일정 · 메모 (같이 수정해요)</label><textarea id="f-memo" placeholder="예) 10시 출발 → 점심 → 카페 → 산책"></textarea>
+  <label class="l">📷 사진</label><div class="ph" id="ph"></div>
+  <label class="btn ghost" style="display:block;text-align:center;margin-top:8px">＋ 사진 추가<input type="file" id="f-ph" accept="image/*" multiple hidden></label>
+  ${done?`<label class="l">💌 기록 · 후기</label><div class="hearts" id="hearts"></div><textarea id="f-review" placeholder="오늘 어땠어? 기억하고 싶은 순간을 남겨요"></textarea>`:""}
+  <div class="row">
+    ${done?`<button class="btn ghost" id="undo">계획으로 되돌리기</button>`:`<button class="btn ok" id="finish">✅ 다녀왔어요 · 기록으로 보관</button>`}
+    <button class="btn ghost" id="del" style="flex:.4">삭제</button>
+  </div>`;
+  const bind=(s,k)=>{const el=$(s);el.value=p[k]||"";el.oninput=()=>{saveLater(id,{[k]:el.value});if(k==="place"||k==="mapUrl")drawMaps()}};
+  bind("#f-title","title");bind("#f-date","date");bind("#f-place","place");bind("#f-map","mapUrl");bind("#f-memo","memo");
+  if(done)bind("#f-review","review");
+  $("#back").onclick=closeEditor;
+  const fin=$("#finish");if(fin)fin.onclick=async()=>{await save(id,{status:"done"});openEditor(id)};
+  const un=$("#undo");if(un)un.onclick=async()=>{await save(id,{status:"plan"});openEditor(id)};
+  $("#del").onclick=async()=>{if(!confirm("이 데이트를 삭제할까요? (둘 다 사라져요)"))return;
+    photos.filter(x=>x.planId===id).forEach(x=>C.photos.doc(x.id).delete());
+    plans=plans.filter(x=>x.id!==id);try{await C.dates.doc(id).delete()}catch(e){}closeEditor()};
+  document.querySelectorAll("[data-add]").forEach(b=>b.onclick=()=>{
+    const k=b.dataset.add,inp=$("#a-"+k),v=inp.value.trim();if(!v)return;
+    const cur=get(id)[k]||[];if(!cur.includes(v))save(id,{[k]:[...cur,v]});inp.value="";refreshEditor()});
+  $("#f-ph").onchange=async e=>{
+    for(const f of e.target.files){try{const data=await shrink(f);
+      await C.photos.doc("i"+Date.now().toString(36)+Math.random().toString(36).slice(2,5)).set({planId:id,data,createdAt:Date.now()})}catch(er){alert("사진을 올리지 못했어요")}}
+    e.target.value="";};
+  refreshEditor();
+}
+function drawMaps(){
+  const p=get(openId),box=$("#maps");if(!p||!box)return;
+  const q=encodeURIComponent(p.place||p.title||"");
+  box.innerHTML=(p.place?`<a target="_blank" rel="noopener" href="https://map.naver.com/p/search/${q}">🟢 네이버지도</a><a target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${q}">🔵 구글지도</a><a target="_blank" rel="noopener" href="https://map.kakao.com/?q=${q}">🟡 카카오맵</a>`:"")+
+    (/^https?:\/\//.test(p.mapUrl||"")?`<a target="_blank" rel="noopener" href="${esc(p.mapUrl)}">📌 저장한 링크 열기</a>`:"");
+}
+function refreshEditor(){
+  const p=get(openId);if(!p||$("#modal").hidden)return;
+  ["concept","food","act"].forEach(k=>{
+    const box=$("#c-"+k);if(!box)return;
+    box.innerHTML=chipsHtml(k,p);
+    box.querySelectorAll(".chip").forEach(c=>c.onclick=()=>{
+      const cur=get(openId)[k]||[],v=c.dataset.v;
+      save(openId,{[k]:cur.includes(v)?cur.filter(x=>x!==v):[...cur,v]});refreshEditor()});
+  });
+  [["#f-title","title"],["#f-date","date"],["#f-place","place"],["#f-map","mapUrl"],["#f-memo","memo"],["#f-review","review"]].forEach(([s,k])=>{
+    const el=$(s);if(el&&document.activeElement!==el)el.value=p[k]||""});
+  drawMaps();
+  const ph=$("#ph");
+  ph.innerHTML=photos.filter(x=>x.planId===openId).sort((a,b)=>a.createdAt-b.createdAt).map(x=>`<img src="${x.data}" data-id="${x.id}" alt="">`).join("");
+  ph.querySelectorAll("img").forEach(i=>i.onclick=()=>{if(confirm("이 사진을 삭제할까요?"))C.photos.doc(i.dataset.id).delete()});
+  const h=$("#hearts");
+  if(h){h.innerHTML=[1,2,3,4,5].map(n=>`<button data-n="${n}" class="${(p.rating||0)>=n?"on":""}">❤️</button>`).join("");
+    h.querySelectorAll("button").forEach(b=>b.onclick=()=>{save(openId,{rating:+b.dataset.n});refreshEditor()})}
+  const u=$("#upd");if(u&&p.updatedAt)u.textContent="마지막 수정 "+new Date(p.updatedAt).toLocaleString("ko-KR",{month:"numeric",day:"numeric",hour:"numeric",minute:"2-digit"});
+}
+function closeEditor(){$("#modal").hidden=true;openId=null;renderList()}
+function setTab(t){tab=t;["plan","done","vote"].forEach(x=>$("#t-"+x).classList.toggle("on",x===t));renderList()}
+$("#t-plan").onclick=()=>setTab("plan");$("#t-done").onclick=()=>setTab("done");$("#t-vote").onclick=()=>setTab("vote");$("#newBtn").onclick=newPlan;
+paintWho();renderList();
+
+(async()=>{
+  const {c,mode}=await initDb();
+  C={dates:c("dates"),photos:c("photos"),polls:c("polls")};
+  if(mode==="local")$("#warn").innerHTML='<div class="warn">지금은 이 기기에만 저장돼요. 둘이 공유하려면 Firebase 설정이 필요해요 (README 참고).</div>';
+  const err=()=>{$("#warn").innerHTML='<div class="warn">불러오기에 실패했어요. 새로고침해 주세요.</div>'};
+  const map=s=>s.docs.map(d=>({id:d.id,...d.data()}));
+  C.dates.onSnapshot(s=>{plans=map(s);renderList();if(openId){get(openId)?refreshEditor():closeEditor()}},err);
+  C.photos.onSnapshot(s=>{photos=map(s);renderList();refreshEditor()},err);
+  C.polls.onSnapshot(s=>{polls=map(s);if(tab==="vote")renderPolls()},err);
+})();
+</script>
+</body>
+</html>
